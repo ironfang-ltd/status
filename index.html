@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Ironfang Status</title>
+<link rel="icon" href="https://ironfang.uk/favicon.svg">
+<style>
+    :root {
+        --ink: #05050a; --base: #0a0a0f; --surface: #101017;
+        --fg: #f4f4f5; --muted: #8c8ca6; --faint: #5b5b6e;
+        --border: #1d1d26;
+        --ok: #34d399; --warn: #fbbf24; --bad: #f87171; --none: #26262f;
+        --accent: #6366f1; --violet: #a855f7;
+    }
+    * { box-sizing: border-box; margin: 0; }
+    body {
+        background: var(--base); color: var(--fg);
+        font: 16px/1.6 "Inter", -apple-system, "Segoe UI", sans-serif;
+        min-height: 100vh; display: flex; flex-direction: column;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .wrap { width: 100%; max-width: 46rem; margin: 0 auto; padding: 0 1.25rem; }
+    header { padding: 2.5rem 0 0; }
+    .brand { display: flex; align-items: baseline; gap: .55rem; font-weight: 800; letter-spacing: .02em; }
+    .brand .slash { background: linear-gradient(120deg, var(--accent), var(--violet)); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 800; }
+    .brand .sub { color: var(--muted); font-weight: 500; }
+    .banner {
+        margin: 1.75rem 0 1.25rem; padding: 1rem 1.25rem; border-radius: .8rem;
+        background: var(--surface); display: flex; align-items: center; gap: .75rem;
+        font-weight: 600;
+    }
+    .banner .dot { width: .7rem; height: .7rem; border-radius: 50%; flex: none; }
+    .banner small { margin-left: auto; color: var(--faint); font-weight: 400; }
+    .notice {
+        margin: 0 0 1.25rem; padding: .85rem 1.25rem; border-radius: .8rem;
+        background: rgba(251,191,36,.08); color: #fde68a; font-size: .92rem;
+    }
+    .card { background: var(--surface); border-radius: .8rem; padding: 1.1rem 1.25rem; margin-bottom: .9rem; }
+    .svc-head { display: flex; align-items: center; gap: .6rem; }
+    .svc-head .dot { width: .55rem; height: .55rem; border-radius: 50%; }
+    .svc-head .name { font-weight: 600; }
+    .svc-head .desc { color: var(--faint); font-size: .82rem; }
+    .svc-head .pct { margin-left: auto; color: var(--muted); font-size: .85rem; font-variant-numeric: tabular-nums; }
+    .bars { display: flex; gap: 2px; margin-top: .8rem; height: 2rem; }
+    .bars span { flex: 1; border-radius: 2px; background: var(--none); }
+    .bars span[data-tip] { position: relative; }
+    .legend { display: flex; justify-content: space-between; color: var(--faint); font-size: .75rem; margin-top: .45rem; }
+    footer { margin-top: auto; padding: 2.5rem 0 2rem; color: var(--faint); font-size: .85rem; }
+    footer .wrap { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+    .ok-bg { background: var(--ok); } .warn-bg { background: var(--warn); } .bad-bg { background: var(--bad); }
+</style>
+</head>
+<body>
+<header class="wrap">
+    <div class="brand">IRONFANG <span class="slash">//</span> <span class="sub">status</span></div>
+</header>
+
+<main class="wrap">
+    <div class="banner" id="banner">
+        <span class="dot" style="background: var(--none)"></span>
+        <span>Loading current status...</span>
+        <small id="updated"></small>
+    </div>
+    <div class="notice" id="notice" hidden></div>
+    <div id="services"></div>
+</main>
+
+<footer>
+    <div class="wrap">
+        <span>Checks run every 5 minutes from an independent network.</span>
+        <span><a href="https://ironfang.uk">ironfang.uk</a></span>
+    </div>
+</footer>
+
+<script>
+const SERVICES = [
+    { key: "website", name: "Website", desc: "ironfang.uk" },
+    { key: "portal", name: "Customer portal", desc: "portal.ironfang.uk" },
+    { key: "identity", name: "Identity", desc: "id.ironfang.uk" },
+    { key: "api", name: "Renderwolf API", desc: "api.ironfang.uk" },
+];
+const DAYS = 90;
+
+async function fetchJSON(name) {
+    const r = await fetch(`data/${name}?t=${Date.now()}`, { cache: "no-store" });
+    if (!r.ok) throw new Error(name);
+    return r.json();
+}
+
+function dayList() {
+    const out = [];
+    const d = new Date();
+    for (let i = DAYS - 1; i >= 0; i--) {
+        const x = new Date(d.getTime() - i * 86400000);
+        out.push(x.toISOString().slice(0, 10));
+    }
+    return out;
+}
+
+function cls(pct) {
+    if (pct === null) return "";
+    if (pct >= 99.5) return "ok-bg";
+    if (pct >= 95) return "warn-bg";
+    return "bad-bg";
+}
+
+function render(current, daily, history) {
+    const days = dayList();
+    const dayCut = Date.now() - 86400000;
+    const container = document.getElementById("services");
+    container.innerHTML = "";
+    let downCount = 0;
+
+    for (const svc of SERVICES) {
+        const cur = current.services[svc.key] || { up: false, ms: -1 };
+        if (!cur.up) downCount++;
+
+        const recent = history.filter(h => Date.parse(h.t) >= dayCut && svc.key in h);
+        const upRecent = recent.filter(h => h[svc.key] >= 0).length;
+        const pct24 = recent.length ? (100 * upRecent / recent.length) : null;
+
+        let up90 = 0, total90 = 0;
+        const bars = days.map(day => {
+            const d = daily[day] && daily[day][svc.key];
+            if (!d || !d[1]) return `<span title="${day}: no data"></span>`;
+            up90 += d[0]; total90 += d[1];
+            const pct = 100 * d[0] / d[1];
+            return `<span class="${cls(pct)}" title="${day}: ${pct.toFixed(1)}%"></span>`;
+        }).join("");
+        const pct90 = total90 ? (100 * up90 / total90) : null;
+
+        const state = cur.up
+            ? `<span class="dot ok-bg"></span>`
+            : `<span class="dot bad-bg"></span>`;
+        const latency = cur.up && cur.ms >= 0 ? ` &middot; ${cur.ms}ms` : "";
+
+        container.insertAdjacentHTML("beforeend", `
+            <div class="card">
+                <div class="svc-head">
+                    ${state}
+                    <span class="name">${svc.name}</span>
+                    <span class="desc">${svc.desc}${latency}</span>
+                    <span class="pct">${pct90 === null ? "" : pct90.toFixed(2) + "% / 90d"}${pct24 === null ? "" : " &middot; " + pct24.toFixed(1) + "% / 24h"}</span>
+                </div>
+                <div class="bars">${bars}</div>
+                <div class="legend"><span>${DAYS} days ago</span><span>today</span></div>
+            </div>`);
+    }
+
+    const banner = document.getElementById("banner");
+    const all = SERVICES.length;
+    let color, text;
+    if (downCount === 0) { color = "var(--ok)"; text = "All systems operational"; }
+    else if (downCount < all) { color = "var(--warn)"; text = "Partial outage"; }
+    else { color = "var(--bad)"; text = "Major outage"; }
+    banner.innerHTML = `<span class="dot" style="background:${color}"></span><span>${text}</span><small>updated ${current.updated.replace("T", " ").replace("Z", " UTC")}</small>`;
+}
+
+async function refresh() {
+    try {
+        const [current, daily, history] = await Promise.all([
+            fetchJSON("current.json"), fetchJSON("daily.json"), fetchJSON("history.json"),
+        ]);
+        render(current, daily, history);
+        try {
+            const notice = await fetchJSON("notice.json");
+            const el = document.getElementById("notice");
+            if (notice && notice.message) { el.textContent = notice.message; el.hidden = false; }
+        } catch { /* no notice posted */ }
+    } catch {
+        document.getElementById("banner").innerHTML =
+            `<span class="dot" style="background: var(--none)"></span><span>Status data unavailable</span>`;
+    }
+}
+
+refresh();
+setInterval(refresh, 60000);
+</script>
+</body>
+</html>
