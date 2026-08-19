@@ -50,7 +50,9 @@
     .legend { display: flex; justify-content: space-between; color: var(--faint); font-size: .75rem; margin-top: .45rem; }
     footer { margin-top: auto; padding: 2.5rem 0 2rem; color: var(--faint); font-size: .85rem; }
     footer .wrap { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
-    .ok-bg { background: var(--ok); } .warn-bg { background: var(--warn); } .bad-bg { background: var(--bad); }
+    .ok-bg, .bars span.ok-bg { background: var(--ok); }
+    .warn-bg, .bars span.warn-bg { background: var(--warn); }
+    .bad-bg, .bars span.bad-bg { background: var(--bad); }
 </style>
 </head>
 <body>
