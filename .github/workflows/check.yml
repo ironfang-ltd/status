@@ -13,11 +13,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       - run: python3 scripts/check.py
+      # One rolling data commit, amended and force-pushed each run - the data
+      # files carry all the history the page needs, so the git log stays tiny.
       - run: |
           git config user.name "status-bot"
           git config user.email "status@ironfang.uk"
           git add data
-          git diff --cached --quiet || git commit -m "status data"
-          git pull --rebase origin main
-          git push
+          if git diff --cached --quiet; then exit 0; fi
+          if git log -1 --format=%s | grep -qx "status data"; then
+              git commit --amend -m "status data"
+          else
+              git commit -m "status data"
+          fi
+          git push --force-with-lease origin main
