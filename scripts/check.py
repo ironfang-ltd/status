@@ -10,10 +10,10 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 SERVICES = {
-    "website": "https://ironfang.uk/",
-    "portal": "https://portal.ironfang.uk/",
-    "identity": "https://id.ironfang.uk/healthz",
-    "api": "https://api.ironfang.uk/healthz",
+    "website": "https://ironfang.com/",
+    "portal": "https://portal.ironfang.com/",
+    "identity": "https://id.ironfang.com/healthz",
+    "api": "https://api.ironfang.com/healthz",
 }
 
 TIMEOUT = 10

@@ -1,7 +1,7 @@
 # Ironfang status
 
-Public status page for [Ironfang](https://ironfang.uk) services, live at
-[status.ironfang.uk](https://status.ironfang.uk).
+Public status page for [Ironfang](https://ironfang.com) services, live at
+[status.ironfang.com](https://status.ironfang.com).
 
 A GitHub Actions job probes the public endpoints every five minutes from
 GitHub's network - deliberately outside Ironfang's own infrastructure, so the
