@@ -1,0 +1,21 @@
+# Ironfang Ltd. How to report a vulnerability, what is in scope and
+# what we promise in return: https://ironfang.com/legal/security
+Contact: mailto:security@ironfang.com
+Contact: https://ironfang.com/contact
+Expires: 2027-09-29T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://ironfang.com/.well-known/security.txt
+Canonical: https://api.ironfang.com/.well-known/security.txt
+Canonical: https://portal.ironfang.com/.well-known/security.txt
+Canonical: https://id.ironfang.com/.well-known/security.txt
+Canonical: https://mcp.ironfang.com/.well-known/security.txt
+Canonical: https://analytics.ironfang.com/.well-known/security.txt
+Canonical: https://replay.ironfang.com/.well-known/security.txt
+Canonical: https://stats.ironfang.com/.well-known/security.txt
+Canonical: https://status.ironfang.com/.well-known/security.txt
+Canonical: https://staging.ironfang.com/.well-known/security.txt
+Canonical: https://hooks.rig.ironfang.com/.well-known/security.txt
+Canonical: https://mock.rig.ironfang.com/.well-known/security.txt
+Canonical: https://connect.rig.ironfang.com/.well-known/security.txt
+Canonical: https://smtp.rig.ironfang.com/.well-known/security.txt
+Policy: https://ironfang.com/legal/security
