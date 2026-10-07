@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark">
 <title>Ironfang Status</title>
+<meta name="description" content="Live status and 90-day availability of the Ironfang website, customer portal, identity service and API, checked every five minutes from an independent network.">
+<link rel="canonical" href="https://status.ironfang.com/">
 <link rel="icon" href="https://ironfang.com/favicon.svg">
 <style>
     :root {
@@ -27,6 +29,8 @@
     .brand { display: flex; align-items: baseline; gap: .55rem; font-weight: 800; letter-spacing: .02em; }
     .brand .slash { background: linear-gradient(120deg, var(--accent), var(--violet)); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 800; }
     .brand .sub { color: var(--muted); font-weight: 500; }
+    h1.brand { font-size: inherit; line-height: inherit; }
+    .intro { margin-top: 1rem; color: var(--muted); font-size: .95rem; }
     .banner {
         margin: 1.75rem 0 1.25rem; padding: 1rem 1.25rem; border-radius: .8rem;
         background: var(--surface); display: flex; align-items: center; gap: .75rem;
@@ -57,7 +61,8 @@
 </head>
 <body>
 <header class="wrap">
-    <div class="brand">IRONFANG <span class="slash">//</span> <span class="sub">status</span></div>
+    <h1 class="brand">IRONFANG <span class="slash">//</span> <span class="sub">status</span></h1>
+    <p class="intro">Whether Ironfang's public services are up now, and how available each has been over the last 90 days. Checked every five minutes from GitHub's network, outside Ironfang's own infrastructure.</p>
 </header>
 
 <main class="wrap">
@@ -67,7 +72,13 @@
         <small id="updated"></small>
     </div>
     <div class="notice" id="notice" hidden></div>
-    <div id="services"></div>
+    <div id="services">
+        <!-- What is checked, for a reader without JavaScript and for crawlers; render() replaces it with the live results. -->
+        <div class="card"><div class="svc-head"><span class="name">Website</span><span class="desc">ironfang.com</span></div></div>
+        <div class="card"><div class="svc-head"><span class="name">Customer portal</span><span class="desc">portal.ironfang.com</span></div></div>
+        <div class="card"><div class="svc-head"><span class="name">Identity</span><span class="desc">id.ironfang.com</span></div></div>
+        <div class="card"><div class="svc-head"><span class="name">API</span><span class="desc">api.ironfang.com</span></div></div>
+    </div>
 </main>
 
 <footer>
@@ -82,7 +93,7 @@ const SERVICES = [
     { key: "website", name: "Website", desc: "ironfang.com" },
     { key: "portal", name: "Customer portal", desc: "portal.ironfang.com" },
     { key: "identity", name: "Identity", desc: "id.ironfang.com" },
-    { key: "api", name: "Renderwolf API", desc: "api.ironfang.com" },
+    { key: "api", name: "API", desc: "api.ironfang.com" },
 ];
 const DAYS = 90;
 
