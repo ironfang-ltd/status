@@ -1,0 +1,35 @@
+# Is the Ironfang MCP surface still connectable from the outside?
+#
+# The deploy drift check proves the right commit is running; this proves a
+# client could still start: metadata, challenge, method restriction and the
+# authorization server's advertised capabilities. Nothing in production can
+# reveal a regression here otherwise - it lands as "Authenticate" failing for
+# a customer. Runs from GitHub's own runners so it sees what a client sees;
+# needs no secrets.
+#
+# Here, in the public status repository, since 20 Oct 2026: GitHub's runners
+# cost nothing for a public repository, and Ironfang's own builds run on its
+# own hardware. Moved from ironfang-ltd/ironfang (.github/workflows/
+# mcp-canary.yml); the watchdog there (scripts/canary-alive.sh, run by
+# deploy-drift.yml on the garage's runners) checks that this keeps succeeding.
+name: MCP canary
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  canary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # The capability catalogue answers on the site and on the MCP host
+      # since 21 September 2026, so a missing one is a failure, not a note.
+      - run: scripts/mcp-canary.sh
+        env:
+          MCP_CANARY_CATALOGUE: required
